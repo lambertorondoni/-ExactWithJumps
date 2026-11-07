@@ -1,0 +1,476 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue]{hyperref}
+
+\newtheorem{proposition}{Proposition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\one}{\mathbf{1}}
+\newcommand{\dd}{\mathrm{d}}
+
+\lstset{basicstyle=\ttfamily\footnotesize,columns=fullflexible,frame=single,
+        breaklines=true,showstringspaces=false}
+
+\title{A kicked one-dimensional system:\\
+densities, observables and TTCF with jumps}
+\author{Working notes on Exercise 9.7.1.1}
+\date{7 November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We take the one-dimensional system $\dot x = x^2-1$ on $[-1,1]$ of Exercise
+9.7.1.1 and add, at every time $T$, an instantaneous ``fire'' $x\mapsto x/K$,
+$K>1$. The state space is not restricted: the fire only moves probability
+towards $0$, and the support of the density shrinks by itself. We derive the
+evolution of the density, three equivalent representations of the expectation
+of an observable (direct/Lagrangian, Kawasaki/Eulerian, TTCF), and an exact
+transient time correlation function (TTCF) formula that includes the jumps.
+All maps are M\"obius transformations, so everything can be checked against
+closed-form results. A short Python script (Appendix~\ref{app:code}) verifies
+the formulae numerically.
+\end{abstract}
+
+\tableofcontents
+
+%======================================================================
+\section{The model}
+%======================================================================
+
+\subsection{Continuous part}
+On the phase space $\M=[-1,1]$ consider
+\begin{equation}
+  \dot x = G(x) = x^2-1, \qquad \Lambda(x) = G'(x) = 2x .
+\end{equation}
+The endpoints $\pm1$ are fixed points, $\M$ is invariant forwards and
+backwards in time, $-1$ is attracting and $+1$ repelling. Since
+$\dot x = -(1-x^2)$, the solution is $x(t)=\tanh(\operatorname{artanh}x_0-t)$,
+i.e., with $\tau_t=\tanh t$,
+\begin{equation}\label{eq:flow}
+  \Phi^t x = \frac{x-\tau_t}{1-\tau_t x}
+  = \frac{(1+x)-(1-x)e^{2t}}{(1+x)+(1-x)e^{2t}} ,
+\end{equation}
+which coincides with Eq.~(9.131) of the book and is valid for all
+$x\in\M$, including $x=\pm1$. Its derivative is
+\begin{equation}\label{eq:flowjac}
+  \frac{\dd\Phi^t x}{\dd x} = \frac{1-\tau_t^2}{(1-\tau_t x)^2}
+  = \exp\Big(\int_0^t \Lambda(\Phi^s x)\,\dd s\Big) .
+\end{equation}
+
+\subsection{The fire}
+At the times $T,2T,3T,\dots$ the state jumps according to
+\begin{equation}
+  \psi(x) = x/K, \qquad K>1 .
+\end{equation}
+$\psi$ maps $\M$ \emph{into} $\M$, onto the smaller interval
+$\psi(\M)=[-1/K,1/K]$. We do \emph{not} change the phase space: after a fire
+the flow~\eqref{eq:flow} continues to act on the whole of $\M$. Physically:
+before the fire many trees are likely; after it, states above $1/K$ cannot be
+reached, and probability is moved towards $0$ while keeping its shape.
+
+\subsection{Evolution maps}
+Let $S_{s,t}$ denote the evolution from time $s$ to time $t\ge s$, with the
+convention that a jump at time $kT$ is applied when the trajectory reaches
+$kT$; a trajectory that \emph{starts} at $s=kT$ starts just after the $k$-th
+fire. We write $S_t=S_{0,t}$. The one-period map and the evolution up to
+$t=nT+\tau$, $0\le\tau<T$, are
+\begin{equation}
+  S = \psi\circ\Phi^T, \qquad S_t = \Phi^\tau\circ S^n .
+\end{equation}
+The dynamics is $T$-periodic: $S_{s+T,t+T}=S_{s,t}$.
+
+\begin{remark}[M\"obius structure]
+A map $x\mapsto (ax+b)/(cx+d)$ is represented by the matrix
+$\left(\begin{smallmatrix}a&b\\c&d\end{smallmatrix}\right)$, and composition
+corresponds to matrix multiplication. Here
+\begin{equation}
+  \Phi^t \leftrightarrow \begin{pmatrix}1&-\tau_t\\-\tau_t&1\end{pmatrix},\qquad
+  \psi \leftrightarrow \begin{pmatrix}1&0\\0&K\end{pmatrix},\qquad
+  S \leftrightarrow \begin{pmatrix}1&-\tau_T\\-K\tau_T&K\end{pmatrix}.
+\end{equation}
+So $S_t$ is a M\"obius map for every $t$, and its matrix is a product of
+$2\times2$ matrices.
+\end{remark}
+
+%======================================================================
+\section{Densities}
+%======================================================================
+
+\subsection{Continuous evolution: Lagrangian and Eulerian forms}
+Let $\Lambda_{a,b}(x)=\int_a^b\Lambda(\Phi^s x)\,\dd s$. Under the flow,
+\begin{align}
+  f_t(x) &= e^{-\Lambda_{-t,0}(x)}\, f_0(\Phi^{-t}x)
+  && \text{(Lagrangian, Eq.~(9.141))} \label{eq:lag}\\
+         &= e^{\Omega^{(0)}_{-t,0}(x)}\, f_0(x)
+  && \text{(Eulerian, Eq.~(9.142))} \label{eq:eul}
+\end{align}
+where the dissipation function of a density $f$ is
+\begin{equation}\label{eq:Omega}
+  \Omega^{(f)}(x) = -\Lambda(x) - G(x)\,\frac{f'(x)}{f(x)},
+  \qquad f\,\Omega^{(f)} = -\frac{\dd}{\dd x}\big(G f\big),
+\end{equation}
+and $\Omega^{(0)}=\Omega^{(f_0)}$. Integrating along the trajectory,
+\begin{equation}
+  \Omega^{(0)}_{-t,0}(x) = -\Lambda_{-t,0}(x) + \ln f_0(\Phi^{-t}x) - \ln f_0(x),
+\end{equation}
+so \eqref{eq:lag} and \eqref{eq:eul} coincide: in the Eulerian form $f_0$ is
+evaluated at $x$, and the back-evolution is hidden inside $\Omega^{(0)}$.
+
+For $f_0=1/2$ one has $\Omega^{(0)}=-\Lambda=-2x$ (Eq.~(9.139)) and
+\begin{equation}\label{eq:R}
+  f_t(x) = R_t(x)\,f_0(x),\qquad
+  R_t(x) = e^{-\Lambda_{-t,0}(x)} = \frac{\dd\Phi^{-t}x}{\dd x}
+  = \frac{1-\tau_t^2}{(1+\tau_t x)^2}
+  = \frac{4e^{-2t}}{\big[(1+x)+(1-x)e^{-2t}\big]^2} .
+\end{equation}
+
+\begin{remark}[A misprint in the book]
+In Eq.~(9.137) the factor $2$ of $\Lambda=2x$ is missing: the correct result is
+$\int_0^t\Lambda(\Phi^s x)\,\dd s = 2t-2\ln\frac{A+Be^{2t}}{2}$, $A=1+x$,
+$B=1-x$. Consequently Eq.~(9.138) should read
+$f^{(t)}(x)=\frac12\cdot 4e^{-2t}/(A+Be^{-2t})^2$, which is~\eqref{eq:R}. One
+checks that $\int_{-1}^1 R_t(x)\,\tfrac12\,\dd x=1$, whereas the expression
+printed in (9.138) integrates to $2te^{-t}/(1-e^{-2t})\neq1$. Also, below
+(9.139), ``$f_0$ is constant in $[0,1]$'' should read $[-1,1]$.
+\end{remark}
+
+\subsection{The jump}
+The density is transported by $\psi$ (Frobenius--Perron):
+\begin{equation}\label{eq:jump}
+  f_{kT^+}(x) = K\, f_{kT^-}(Kx)\,\one_{\psi(\M)}(x),
+  \qquad \psi(\M)=[-1/K,1/K].
+\end{equation}
+Both the factor $K$ (the Jacobian of $\psi^{-1}$) and the argument $Kx$ are
+needed. With them, normalization is automatic,
+$\int f_{kT^+}=\int f_{kT^-}=1$, and the shape is preserved: $f_{kT^+}$ is
+$f_{kT^-}$ squeezed into $[-1/K,1/K]$. Simply multiplying by $K$ and cutting,
+$K f_{kT^-}(x)\one_{\psi(\M)}(x)$, would \emph{not} conserve probability. It
+would correspond to removing whole realizations from the ensemble, which is a
+different problem (escape, conditioning).
+
+\subsection{Composition}
+For any $t$,
+\begin{equation}\label{eq:ft}
+  f_t(x) = f_0\big(S_t^{-1}x\big)\, J_t(x)\, \one_{S_t(\M)}(x),
+  \qquad J_t(x)=\Big|\frac{\dd S_t^{-1}x}{\dd x}\Big| .
+\end{equation}
+Equivalently, by recursion over one period,
+\begin{equation}\label{eq:recursion}
+  f_{nT^+}(x) = K\, R_T(Kx)\, f_{(n-1)T^+}\big(\Phi^{-T}(Kx)\big)\,
+  \one_{[-1/K,1/K]}(x).
+\end{equation}
+
+\begin{remark}[Composition of the factors]
+The factor from $0$ to $2T$ is \emph{not} $R_T(x)^2$. By the cocycle property,
+$R_T(x)\,R_T(\Phi^{-T}x)=R_{2T}(x)$. In the Eulerian language: for the second
+interval the initial density is $f_T$, which is not uniform, so the relevant
+dissipation function is $\Omega^{(f_T)}\neq\Omega^{(f_0)}$. Multiplying $f_T$
+by a constant (such as $K$) does not change $\Omega^{(f_T)}$, because only
+$\dd\ln f/\dd x$ enters~\eqref{eq:Omega}.
+\end{remark}
+
+\subsection{The support shrinks by itself}
+Since $\Phi^T(\M)=\M$, we get $S(\M)=\psi(\M)=[-1/K,1/K]$ and, by
+induction, $S^n(\M)=[l_n,u_n]$ with
+\begin{equation}
+  l_n = S(l_{n-1}),\quad u_n=S(u_{n-1}),\qquad l_0=-1,\ u_0=1 .
+\end{equation}
+Since $\Phi^T u<u$ for $u\in(-1,1)$, we get $u_n<u_{n-1}/K$, so $u_n<K^{-n}$
+for $n\ge2$: the maximum number of trees never recovers. The intervals are
+nested, $S^{n}(\M)\subset S^{n-1}(\M)$, and both endpoints converge to the
+fixed point $x^*$ of $S$ (Section~\ref{sec:closed}). The shrinking need not be
+imposed; it is a consequence of the dynamics.
+
+%======================================================================
+\section{Expectations of observables}
+%======================================================================
+
+Let $O$ be any (bounded, measurable) function on $\M$; $O(x)=x$ is the
+simplest case. Three exact and equivalent representations are available.
+
+\subsection{Direct (Lagrangian, Heisenberg-like)}
+\begin{equation}\label{eq:direct}
+  \E_t[O] = \int_\M f_t\,O\,\dd x = \int_\M f_0(z)\, O(S_t z)\,\dd z
+  = \E_0[O\circ S_t] .
+\end{equation}
+Sample initial points from $f_0$, evolve them with flow and jumps, and average
+$O$. No exponential factor appears: it is absorbed by the change of variables
+$x=S_t z$, whose Jacobian is exactly $J_t$.
+
+\subsection{Kawasaki (Eulerian): the ``new observable'' picture}
+Define, for $x\in S_t(\M)$,
+\begin{equation}
+  \Omega_t(x) = \ln\frac{f_0(S_t^{-1}x)\,J_t(x)}{f_0(x)} .
+\end{equation}
+Then $f_t = f_0\,e^{\Omega_t}\,\one_{S_t(\M)}$ and
+\begin{equation}\label{eq:kawasaki}
+  \E_t[O] = \E_0\big[\,O\; e^{\Omega_t}\;\one_{S_t(\M)}\big].
+\end{equation}
+$\ln J_t$ is the sum of $-\Lambda$ integrated over all flow segments of the
+backward trajectory, plus $n\ln K$ for $n$ jumps. For $f_0=1/2$ at $t=nT^+$:
+\begin{equation}
+  e^{\Omega_{nT}(x)} = K^n \prod_{j=1}^n R_T(K y_j),\qquad
+  y_n = x,\quad y_{j-1}=\Phi^{-T}(K y_j).
+\end{equation}
+This is the corrected version of the idea ``new observable
+$O_n = O\times(\text{exponential factor})\times K^n$, same density $f_0$''.
+The factor $K^n$ is indeed there. The exponential factor is $R_T$ evaluated at
+the back-mapped points, not $R_T(x)^n$, and the indicator of the support is
+essential.
+
+\subsection{TTCF with jumps}
+This is derived in the next section; see Eq.~\eqref{eq:ttcf}.
+
+%======================================================================
+\section{TTCF with jumps}
+%======================================================================
+
+\subsection{Reminder: the autonomous case}
+For the flow alone,
+$\frac{\dd}{\dd t}\E_0[O\circ\Phi^t]=\E_0[G\,(O\circ\Phi^t)']$ because
+$\frac{\dd}{\dd t}(O\circ\Phi^t) = G\,(O\circ\Phi^t)'$ (the generator commutes
+with the flow). Integrating by parts with~\eqref{eq:Omega},
+\begin{equation}
+  \frac{\dd}{\dd t}\E_t[O] = \E_0\big[(O\circ\Phi^t)\,\Omega^{(0)}\big]
+  + \Big[f_0\,G\,(O\circ\Phi^t)\Big]_{-1}^{1}.
+\end{equation}
+The boundary term vanishes because $G(\pm1)=0$. Integration gives Eq.~(9.144):
+\begin{equation}
+  \E_t[O]=\E_0[O]+\int_0^t\dd s\;\E_0\big[(O\circ\Phi^s)\,\Omega^{(0)}\big].
+\end{equation}
+With jumps the argument fails: $S_t=\Phi^\tau\circ S^n$ is not a semigroup in
+$t$, and the time derivative cannot be moved to time $0$.
+
+\subsection{Derivation with jumps}
+Fix $t$ and consider the expectation at time $t$ of a system prepared in $f_0$
+at a \emph{variable} starting time $s\in[0,t]$:
+\begin{equation}
+  F(s) = \E_0\big[O\circ S_{s,t}\big] = \int_\M f_0(x)\,O(S_{s,t}x)\,\dd x .
+\end{equation}
+Then $F(0)=\E_t[O]$ and $F(t)=\E_0[O]$.
+\begin{itemize}
+\item \emph{Between jumps} ($s\neq kT$). The backward equation gives
+  $\partial_s (O\circ S_{s,t})(x) = -G(x)\,(O\circ S_{s,t})'(x)$. Integrating
+  by parts, the boundary term vanishes again since $G(\pm1)=0$, and
+  \begin{equation}
+    -F'(s) = \E_0\big[\Omega^{(0)}\;(O\circ S_{s,t})\big].
+  \end{equation}
+\item \emph{At a jump} $s=kT\le t$. $F$ is discontinuous, since
+  $S_{kT^-,t}=S_{kT^+,t}\circ\psi$:
+  \begin{equation}
+    F(kT^-)-F(kT^+) = \E_0\big[O\circ S_{kT,t}\circ\psi - O\circ S_{kT,t}\big].
+  \end{equation}
+\end{itemize}
+Writing $F(0)-F(t)=-\int F'\,\dd s+\sum_k\big[F(kT^-)-F(kT^+)\big]$, we obtain:
+
+\begin{proposition}[TTCF with jumps]
+For $nT\le t<(n+1)T$,
+\begin{equation}\label{eq:ttcf}
+\boxed{\;
+  \E_t[O] = \E_0[O]
+  + \int_0^t \dd s\;\E_0\big[\Omega^{(0)}\,(O\circ S_{s,t})\big]
+  + \sum_{k=1}^{n} \E_0\big[O\circ S_{kT,t}\circ\psi - O\circ S_{kT,t}\big]
+\;}
+\end{equation}
+where $\Omega^{(0)}=-\Lambda-Gf_0'/f_0$ is the dissipation function of the
+\emph{continuous} dynamics with respect to $f_0$, the $s$-integral runs over
+the flow intervals (the jump instants have zero measure), and $S_{s,t}$
+includes all jumps between $s$ and $t$.
+\end{proposition}
+
+For $K=1$ (no jumps) the sum vanishes, $S_{s,t}=\Phi^{t-s}$, and the change of
+variables $u=t-s$ gives back Eq.~(9.144).
+
+\paragraph{Interpretation.}
+\begin{itemize}
+\item The first correction is a TTCF in the usual sense: $\Omega^{(0)}$ is
+  evaluated at the initial point, drawn from $f_0$, and correlated with $O$
+  at the end of a trajectory that \emph{starts at time $s$}. Since the
+  dynamics is not autonomous, the start time matters, and it is no longer a
+  single correlation function of the lag $t-s$.
+\item Each jump contributes a finite ``jump response'': the difference of
+  $O$ at time $t$ between a trajectory that starts at $kT$ from $\psi(x)$ and
+  one that starts at $kT$ from $x$, averaged over $x\sim f_0$. It requires no
+  dissipation function.
+\item Only $f_0$ and $\Omega^{(0)}$ ever appear. One never needs the
+  dissipation function of a density with restricted support, and points
+  whose backward trajectory leaves $S_t(\M)$ cause no problems.
+\end{itemize}
+
+\begin{remark}[Jump as a fast flow; boundary terms]
+$\psi$ is the time-$\ln K$ map of the flow $\dot x=g(x)=-x$. Writing the jump
+term as $\int_0^{\ln K}\dd\sigma\,\frac{\dd}{\dd\sigma}\E_0[A\circ\psi_\sigma]$,
+with $A=O\circ S_{kT,t}$ and $\psi_\sigma x=xe^{-\sigma}$, the same integration
+by parts gives a ``kick dissipation function''
+$\Omega_{\rm kick}=-(gf_0)'/f_0=1+xf_0'/f_0$. However, now $g(\pm1)\neq0$, so
+\begin{equation}
+  \frac{\dd}{\dd\sigma}\E_0[A\circ\psi_\sigma]
+  = \E_0\big[\Omega_{\rm kick}\,(A\circ\psi_\sigma)\big]
+  - f_0(1)A(\psi_\sigma 1) - f_0(-1)A(\psi_\sigma(-1)) .
+\end{equation}
+The boundary terms vanish only if $f_0(\pm1)=0$, e.g.\ for
+$f_0=\frac34(1-x^2)$, but not for $f_0=\frac12$. The finite form used
+in~\eqref{eq:ttcf} avoids this subtlety altogether.
+\end{remark}
+
+\subsection{Using periodicity: correlation functions to compute}
+Since $S_{s+T,t+T}=S_{s,t}$, write $s=mT+\sigma$ with $\sigma\in(0,T)$, and
+define
+\begin{align}
+  C(\sigma,u) &= \E_0\big[\Omega^{(0)}(x)\;O(S_{\sigma,\sigma+u}x)\big],
+  && \sigma\in(0,T),\ u\ge0, \label{eq:C}\\
+  D(u) &= \E_0\big[O(S_{0,u}(\psi x)) - O(S_{0,u}x)\big], && u\ge0,
+  \label{eq:D}
+\end{align}
+where in $D$ the trajectories start just after a jump (phase $0^+$, next jump
+at $T$). Then, for $nT\le t<(n+1)T$,
+\begin{equation}\label{eq:ttcf-periodic}
+  \E_t[O] = \E_0[O]
+  + \sum_{m=0}^{n}\int_0^{\min(T,\,t-mT)}\!\!\dd\sigma\;
+      C(\sigma,\,t-mT-\sigma)
+  + \sum_{k=1}^{n} D(t-kT).
+\end{equation}
+
+\subsection{Implementation}
+\begin{enumerate}
+\item \textbf{Initial ensemble.} Draw $N$ points $x_i\sim f_0$ (or use
+  quadrature nodes and weights). Compute $\Omega^{(0)}(x_i)$ once.
+\item \textbf{Phase grid.} Choose $\sigma_1,\dots,\sigma_P\in(0,T)$ (e.g.\
+  Gauss--Legendre nodes).
+\item \textbf{Flow correlations.} For each $\sigma_p$, evolve every $x_i$
+  with the kicked dynamics starting at phase $\sigma_p$ (first jump after a
+  time $T-\sigma_p$), recording $O$ on a grid of lags $u$. Accumulate
+  $C(\sigma_p,u)\approx\frac1N\sum_i\Omega^{(0)}(x_i)\,O(\cdot)$.
+\item \textbf{Jump correlations.} Evolve the pairs $x_i$ and $\psi(x_i)$
+  from phase $0^+$ and accumulate the difference of $O$ to obtain $D(u)$.
+\item \textbf{Assemble} with~\eqref{eq:ttcf-periodic}, using a quadrature in
+  $\sigma$.
+\end{enumerate}
+\emph{Cost.} In the autonomous case one batch of trajectories gives the whole
+response. Here one needs one batch per starting phase $\sigma_p$, plus one
+batch of pairs for $D$. In exchange, as in standard TTCF, the correlations
+start from zero-mean quantities ($\E_0[\Omega^{(0)}]=0$ by~\eqref{eq:Omega}
+with $G(\pm1)=0$; $D$ is a difference), which is what gives TTCF its
+favourable signal-to-noise ratio when the perturbation is weak (here: $K$
+close to $1$).
+
+\paragraph{Pseudo-code.}
+\begin{lstlisting}
+x[i] ~ f0, i=1..N ;  W[i] = Omega0(x[i])
+for p in 1..P:                      # starting phases sigma_p in (0,T)
+    y = x ; time_to_jump = T - sigma_p
+    for each lag u on the grid:
+        advance y by the flow; apply psi whenever a jump time is crossed
+        C[p,u] += mean(W * O(y))
+y1 = x ; y2 = psi(x)                # pairs started at phase 0+
+for each lag u on the grid:
+    advance both (flow + jumps at u = T, 2T, ...)
+    D[u] = mean(O(y2) - O(y1))
+E_t[O] = E0[O] + sum_m int dsigma C(sigma, t-mT-sigma) + sum_k D(t-kT)
+\end{lstlisting}
+
+%======================================================================
+\section{Closed-form results for this toy model}\label{sec:closed}
+%======================================================================
+
+\subsection{\texorpdfstring{Mean of $x$}{Mean of x}}
+If $S_t\leftrightarrow\left(\begin{smallmatrix}a&b\\c&d\end{smallmatrix}\right)$
+with $c\neq0$, then for $f_0=\frac12$
+\begin{equation}\label{eq:exactmean}
+  \E_t[x] = \frac12\int_{-1}^1 \frac{az+b}{cz+d}\,\dd z
+  = \frac ac + \frac{bc-ad}{2c^2}\,\ln\left|\frac{d+c}{d-c}\right| .
+\end{equation}
+
+\subsection{Fixed point and asymptotic state}
+With $\tau=\tanh T$, the fixed point of $S$ solves $x-\tau=Kx(1-\tau x)$,
+i.e.\ $K\tau x^2+(1-K)x-\tau=0$. The unique root in $\M$ is
+\begin{equation}
+  x^* = \frac{(K-1)-\sqrt{(K-1)^2+4K\tau^2}}{2K\tau}\ \in(-1/K,0).
+\end{equation}
+Since
+\begin{equation}
+  S'(x) = \frac{1-\tau^2}{K(1-\tau x)^2},\qquad
+  0<S'(x^*)<\frac{1-\tau^2}{K}<1,
+\end{equation}
+$x^*$ is attracting. $S$ is increasing, so every orbit converges
+monotonically to $x^*$. The density converges to $\delta(x-x^*)$ at the
+times $nT^+$, and to $\delta(x-\Phi^\tau x^*)$ at the phase $\tau$: the system
+reaches a time-periodic asymptotic state. Unlike the unkicked system, where
+$\E_t[x]\to-1$, here $\E_{nT^+}[x]\to x^*$. The phase-space contraction per
+period at $x^*$ is $\ln S'(x^*)=\Lambda_{0,T}(x^*)-\ln K<0$: the flow
+contributes $\Lambda_{0,T}$, and each fire contributes $-\ln K$.
+
+\subsection{Numerical check}
+Table~\ref{tab:check} compares~\eqref{eq:exactmean} with the direct
+average~\eqref{eq:direct}, the TTCF formula~\eqref{eq:ttcf}, and the Kawasaki
+form~\eqref{eq:kawasaki}, for $K=2$, $T=0.5$, $O(x)=x$, $f_0=\frac12$. The
+script also checks~\eqref{eq:ttcf} for $f_0=\frac34(1-x^2)$, where
+$\Omega^{(0)}=-4x$; direct and TTCF agree to all printed digits.
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{rcccc l}
+\toprule
+$t$ & exact & direct & TTCF + jumps & Kawasaki & support $S_t(\M)$\\
+\midrule
+0.25 & $-0.1652900760$ & $-0.1652900760$ & $-0.1652900760$ & $-0.1652900760$ & $[-1,1]$\\
+0.50 & $-0.1613031127$ & $-0.1613031127$ & $-0.1613031127$ & $-0.1613031127$ & $[-0.5000,0.5000]$\\
+0.75 & $-0.3749729624$ & $-0.3749729624$ & $-0.3749729624$ & $-0.3749729624$ & $[-0.6636,0.2907]$\\
+1.00 & $-0.2780722033$ & $-0.2780722033$ & $-0.2780722033$ & $-0.2780722033$ & $[-0.3908,0.0246]$\\
+1.50 & $-0.3265087657$ & $-0.3265087657$ & $-0.3265087657$ & $-0.3265087657$ & $[-0.3612,-0.2213]$\\
+2.00 & $-0.3424778729$ & $-0.3424778729$ & $-0.3424778729$ & $-0.3424778729$ & $[-0.3528,-0.3100]$\\
+3.00 & $-0.3487418470$ & $-0.3487418470$ & $-0.3487418470$ & $-0.3487418470$ & $[-0.3496,-0.3459]$\\
+5.00 & $-0.3493266560$ & $-0.3493266560$ & $-0.3493266560$ & $-0.3493266560$ & $[-0.3493,-0.3493]$\\
+\bottomrule
+\end{tabular}
+\caption{$K=2$, $T=0.5$, $x^*=-0.3493309143$. The jumps occur at
+$t=0.5,1,1.5,\dots$; values at those times are taken just after the jump.}
+\label{tab:check}
+\end{table}
+
+%======================================================================
+\section{Remarks and open directions}
+%======================================================================
+\begin{itemize}
+\item \textbf{Irreversibility.} $\psi$ is injective but not onto $\M$, so the
+  kicked dynamics is not invertible on $\M$, and there is no involution $i$
+  with $iSi=S^{-1}$. Moreover, the support of $f_t$ is strictly smaller than
+  that of $f_0$, so the ergodic consistency condition is violated. Standard
+  transient fluctuation relations for $\Omega_t$ should therefore not be
+  expected. The response formula~\eqref{eq:ttcf} uses neither reversibility
+  nor ergodic consistency.
+\item \textbf{Other jump maps.} Nothing in the derivation of~\eqref{eq:ttcf}
+  uses the specific form of $\psi$: any measurable $\psi:\M\to\M$ applied at
+  known times gives the same structure. Random fire intensities ($K$ random)
+  can be handled by averaging the jump terms over $K$; jumps at random times
+  (e.g.\ Poisson) by averaging over the jump times. These have not been
+  derived in detail here.
+\item \textbf{Towards a population model.} If $x$ is the population size,
+  the continuous part should contain the growth law (with births). The
+  constraint ``never back to the initial value'' is a property of the
+  combined flow-plus-jump dynamics, as in the toy model, where
+  $\sup S^n(\M)<K^{-n}$. A flow with $G(\pm1)\neq0$ at the boundaries of the
+  chosen phase space would add boundary terms to the TTCF integration by
+  parts, which must be checked case by case.
+\item \textbf{Earlier reading, set aside.} Cutting the density and
+  multiplying by $K$ (removing realizations) does not conserve probability.
+  It belongs to the escape/conditioning setting (survival probabilities), not
+  to the present one.
+\end{itemize}
+
+\appendix
+%======================================================================
+\section{Python verification script}\label{app:code}
+%======================================================================
+Requires only \texttt{numpy}. Run with \texttt{python3 kicked\_ttcf.py}.
+\lstinputlisting[language=Python]{kicked_ttcf.py}
+
+\end{document}
