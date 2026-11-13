@@ -204,6 +204,40 @@ nested, $S^{n}(\M)\subset S^{n-1}(\M)$, and both endpoints converge to the
 fixed point $x^*$ of $S$ (Section~\ref{sec:closed}). The shrinking need not be
 imposed; it is a consequence of the dynamics.
 
+\paragraph{The support is not $[-K^{-n},K^{-n}]$.}
+At each period the endpoints are mapped by the full one-period map
+$S=\psi\circ\Phi^T$: first the flow moves them, then the fire divides them by
+$K$,
+\begin{equation}
+  l_n = \Phi^T(l_{n-1})/K,\qquad u_n=\Phi^T(u_{n-1})/K .
+\end{equation}
+Dividing only by $K$ would give $[-K^{-n},K^{-n}]$. The flow pushes every
+interior point down towards $-1$ ($\Phi^T u<u$), so for $n\ge2$
+\begin{itemize}
+\item the upper edge moves \emph{inside}: $u_n<K^{-n}$;
+\item the lower edge moves \emph{outside}: $l_n<-K^{-n}$. These are points
+  that the continuous evolution carries out of $[-K^{-n},K^{-n}]$.
+\end{itemize}
+For $K=2$, $T=0.5$, at $n=2$ the flow first takes $-0.5$ to
+$\Phi^{0.5}(-0.5)\approx-0.7815$, and the fire then halves it to $-0.3908$:
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$n$ & $[l_n,u_n]$ & $[-K^{-n},K^{-n}]$\\
+\midrule
+1 & $[-0.5000,\ 0.5000]$ & $[-0.5000,\ 0.5000]$\\
+2 & $[-0.3908,\ 0.0246]$ & $[-0.2500,\ 0.2500]$\\
+3 & $[-0.3612,\ -0.2213]$ & $[-0.1250,\ 0.1250]$\\
+4 & $[-0.3528,\ -0.3100]$ & $[-0.0625,\ 0.0625]$\\
+5 & $[-0.3503,\ -0.3377]$ & $[-0.0313,\ 0.0313]$\\
+\bottomrule
+\end{tabular}
+\end{center}
+The two sequences of intervals also end up in different places:
+$[-K^{-n},K^{-n}]$ shrinks to the point $0$, whereas $[l_n,u_n]$ shrinks to
+the fixed point $x^*\approx-0.3493$ of $S$. This is why
+$\E_{nT^+}[x]\to x^*$, and not to $0$.
+
 %======================================================================
 \section{Expectations of observables}
 %======================================================================
