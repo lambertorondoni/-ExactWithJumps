@@ -320,8 +320,16 @@ This is derived in the next section; see Eq.~\eqref{eq:ttcf}.
 \subsection{Reminder: the autonomous case}
 For the flow alone,
 $\frac{\dd}{\dd t}\E_0[O\circ\Phi^t]=\E_0[G\,(O\circ\Phi^t)']$ because
-$\frac{\dd}{\dd t}(O\circ\Phi^t) = G\,(O\circ\Phi^t)'$ (the generator commutes
-with the flow). Integrating by parts with~\eqref{eq:Omega},
+$\frac{\dd}{\dd t}(O\circ\Phi^t) = G\,(O\circ\Phi^t)'$. Explicitly, the group
+property gives $O(\Phi^{t+h}x)=O\big(\Phi^t(\Phi^hx)\big)$, and differentiating
+with respect to $h$ at $h=0$ by the chain rule,
+\begin{equation}
+  \frac{\dd}{\dd t}O(\Phi^tx) = (O\circ\Phi^t)'(x)\,G(x).
+\end{equation}
+Differentiating instead $O(\Phi^{t+h}x)=O\big(\Phi^h(\Phi^tx)\big)$ gives
+$O'(\Phi^tx)\,G(\Phi^tx)$, which is equal: the generator commutes with the
+flow. The first form puts $G$ at the initial point, where $f_0$ lives, and
+that is what allows the integration by parts. Using~\eqref{eq:Omega},
 \begin{equation}\label{eq:autonomous}
   \frac{\dd}{\dd t}\E_t[O] = \E_0\big[(O\circ\Phi^t)\,\Omega^{(0)}\big]
   + \Big[f_0\,G\,(O\circ\Phi^t)\Big]_{-1}^{1}.
@@ -341,12 +349,35 @@ at a \emph{variable} starting time $s\in[0,t]$:
 \end{equation}
 Then $F(0)=\E_t[O]$ and $F(t)=\E_0[O]$.
 \begin{itemize}
-\item \emph{Between jumps} ($s\neq kT$). The backward equation gives
-  $\partial_s (O\circ S_{s,t})(x) = -G(x)\,(O\circ S_{s,t})'(x)$. Integrating
-  by parts, the boundary term vanishes again since $G(\pm1)=0$, and
-  \begin{equation}
-    -F'(s) = \E_0\big[\Omega^{(0)}\;(O\circ S_{s,t})\big].
+\item \emph{Between jumps} ($s\neq kT$). Let $A_s(x)=O(S_{s,t}x)$, the value
+  at time $t$ of $O$ along the trajectory that starts from $x$ at time $s$.
+  Take $h>0$ so small that no jump lies in $(s,s+h]$. Flowing for a time $h$
+  and then evolving from $s+h$ to $t$ is the same as evolving from $s$ to
+  $t$: $S_{s,t}=S_{s+h,t}\circ\Phi^h$. Hence
+  \begin{equation}\label{eq:shift}
+    A_s(x) = A_{s+h}(\Phi^h x)
+    \qquad\Longleftrightarrow\qquad
+    A_{s+h}(x) = A_s(\Phi^{-h}x).
   \end{equation}
+  The second form says that starting later at $x$ is the same as starting
+  at time $s$ from the backward-evolved point $\Phi^{-h}x$, which moves with
+  velocity $\frac{\dd}{\dd h}\Phi^{-h}x\big|_{h=0}=-G(x)$. Differentiating it
+  with respect to $h$ at $h=0$, by the chain rule,
+  \begin{equation}\label{eq:backward}
+    \partial_s A_s(x) = A_s'(x)\,\frac{\dd}{\dd h}\Phi^{-h}x\Big|_{h=0}
+    = -G(x)\,A_s'(x).
+  \end{equation}
+  This is the backward (Kolmogorov) equation of the deterministic dynamics.
+  The same result follows from the first form of~\eqref{eq:shift}:
+  $0=\frac{\dd}{\dd h}A_{s+h}(\Phi^hx)\big|_{h=0}=\partial_sA_s(x)+G(x)A_s'(x)$.
+  Then, integrating by parts and using $f_0\Omega^{(0)}=-(Gf_0)'$
+  from~\eqref{eq:Omega},
+  \begin{equation}
+    -F'(s) = \int_\M f_0\,G\,A_s'\,\dd x
+    = \Big[f_0\,G\,A_s\Big]_{-1}^{1} - \int_\M (f_0G)'\,A_s\,\dd x
+    = \E_0\big[\Omega^{(0)}\;(O\circ S_{s,t})\big],
+  \end{equation}
+  where the boundary term vanishes since $G(\pm1)=0$.
 \item \emph{At a jump} $s=kT\le t$. $F$ is discontinuous, since
   $S_{kT^-,t}=S_{kT^+,t}\circ\psi$:
   \begin{equation}
