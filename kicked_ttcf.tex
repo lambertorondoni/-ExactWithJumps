@@ -275,6 +275,41 @@ The factor $K^n$ is indeed there. The exponential factor is $R_T$ evaluated at
 the back-mapped points, not $R_T(x)^n$, and the indicator of the support is
 essential.
 
+\begin{remark}[The role of the boundaries]\label{rem:boundaries}
+The Kawasaki form~\eqref{eq:kawasaki} is the change of variables $x=S_tz$ in
+the direct average~\eqref{eq:direct}. It works cleanly here because the
+boundaries do not leak: $G(\pm1)=0$, so $\pm1$ are fixed points and no
+trajectory reaches them in finite time, and the fire maps $\M$ into itself.
+Hence
+\begin{itemize}
+\item $S_t$ maps $\M$ into $\M$ without any extra rule; it is invertible
+  from $\M$ onto $S_t(\M)$, and the back-mapped point $S_t^{-1}x$ entering
+  $e^{\Omega_t}$ always lies in $\M$;
+\item probability is conserved: $\E_t[1]=1$.
+\end{itemize}
+If the boundaries leaked, one would first have to specify what happens there:
+\begin{itemize}
+\item \emph{absorbing boundary}: \eqref{eq:kawasaki} survives formally, with
+  $\one_{S_t(\M)}$ meaning ``came from $\M$ and never left'', but
+  $\E_t[1]<1$ (escape setting);
+\item \emph{reflecting boundary or reinjection}: $S_t$ is no longer a smooth
+  invertible map, $J_t$ acquires extra contributions, and~\eqref{eq:kawasaki}
+  must be rederived.
+\end{itemize}
+The same issue appears in the response formulae of the next section, through
+the boundary term $\big[f_0\,G\,(O\circ\Phi^t)\big]_{-1}^{1}$
+in~\eqref{eq:autonomous}: the flux of the initial probability through
+$\pm1$, weighted by $O$ at time $t$. That term is exact as written if nothing
+special happens at $\pm1$, i.e.\ the flow is defined beyond $\M$ and $\M$ is
+only the support of $f_0$. If the dynamics is confined to $\M$ by a boundary
+rule, the identity $\frac{\dd}{\dd t}(O\circ\Phi^t)=G\,(O\circ\Phi^t)'$ fails
+at the boundary, and the formula must be rederived with that rule. The
+boundary term vanishes, and no rule is needed, if $G(\pm1)=0$ (our case) or
+$f_0(\pm1)=0$. This is also why the jump term in~\eqref{eq:ttcf} is written in
+finite form (Remark~\ref{rem:kick}): the kick flow $g(x)=-x$ has
+$g(\pm1)\neq0$.
+\end{remark}
+
 \subsection{TTCF with jumps}
 This is derived in the next section; see Eq.~\eqref{eq:ttcf}.
 
@@ -287,7 +322,7 @@ For the flow alone,
 $\frac{\dd}{\dd t}\E_0[O\circ\Phi^t]=\E_0[G\,(O\circ\Phi^t)']$ because
 $\frac{\dd}{\dd t}(O\circ\Phi^t) = G\,(O\circ\Phi^t)'$ (the generator commutes
 with the flow). Integrating by parts with~\eqref{eq:Omega},
-\begin{equation}
+\begin{equation}\label{eq:autonomous}
   \frac{\dd}{\dd t}\E_t[O] = \E_0\big[(O\circ\Phi^t)\,\Omega^{(0)}\big]
   + \Big[f_0\,G\,(O\circ\Phi^t)\Big]_{-1}^{1}.
 \end{equation}
@@ -354,7 +389,7 @@ variables $u=t-s$ gives back Eq.~(9.144).
   whose backward trajectory leaves $S_t(\M)$ cause no problems.
 \end{itemize}
 
-\begin{remark}[Jump as a fast flow; boundary terms]
+\begin{remark}[Jump as a fast flow; boundary terms]\label{rem:kick}
 $\psi$ is the time-$\ln K$ map of the flow $\dot x=g(x)=-x$. Writing the jump
 term as $\int_0^{\ln K}\dd\sigma\,\frac{\dd}{\dd\sigma}\E_0[A\circ\psi_\sigma]$,
 with $A=O\circ S_{kT,t}$ and $\psi_\sigma x=xe^{-\sigma}$, the same integration
