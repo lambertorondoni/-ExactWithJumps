@@ -166,6 +166,22 @@ Equivalently, by recursion over one period,
   f_{nT^+}(x) = K\, R_T(Kx)\, f_{(n-1)T^+}\big(\Phi^{-T}(Kx)\big)\,
   \one_{[-1/K,1/K]}(x).
 \end{equation}
+Each step of~\eqref{eq:recursion} contains exactly one jump, hence one factor
+$K$ and the indicator of $\psi(\M)=[-1/K,1/K]$, whatever the number of the
+jump. The earlier jumps are hidden in $f_{(n-1)T^+}$. Unrolling the recursion,
+with $y_n=x$ and $y_{j-1}=\Phi^{-T}(Ky_j)$,
+\begin{equation}\label{eq:unrolled}
+  f_{nT^+}(x) = K^n \prod_{j=1}^{n} R_T(Ky_j)\; f_0(y_0)\;
+  \prod_{j=1}^{n}\one_{[-1/K,1/K]}(y_j),
+  \qquad
+  \prod_{j=1}^{n}\one_{[-1/K,1/K]}(y_j) = \one_{S^n(\M)}(x).
+\end{equation}
+The factor $K^n$ appears explicitly, and the product of indicators is the
+indicator of the true support $S^n(\M)$ in~\eqref{eq:ft}. That support is
+\emph{not} $[-K^{-n},K^{-n}]$, which would be correct only if the flow were
+rescaled after each fire. For example, for $K=2$, $T=0.5$, after two jumps
+$S^2(\M)=[-0.3908,\,0.0246]$ (Table~\ref{tab:check}), while
+$[-K^{-2},K^{-2}]=[-0.25,0.25]$.
 
 \begin{remark}[Composition of the factors]
 The factor from $0$ to $2T$ is \emph{not} $R_T(x)^2$. By the cocycle property,
