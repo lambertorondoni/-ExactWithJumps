@@ -421,18 +421,79 @@ variables $u=t-s$ gives back Eq.~(9.144).
 \end{itemize}
 
 \begin{remark}[Jump as a fast flow; boundary terms]\label{rem:kick}
-$\psi$ is the time-$\ln K$ map of the flow $\dot x=g(x)=-x$. Writing the jump
-term as $\int_0^{\ln K}\dd\sigma\,\frac{\dd}{\dd\sigma}\E_0[A\circ\psi_\sigma]$,
-with $A=O\circ S_{kT,t}$ and $\psi_\sigma x=xe^{-\sigma}$, the same integration
-by parts gives a ``kick dissipation function''
-$\Omega_{\rm kick}=-(gf_0)'/f_0=1+xf_0'/f_0$. However, now $g(\pm1)\neq0$, so
+The jump term of~\eqref{eq:ttcf} can also be written with a dissipation
+function, by viewing the jump as a fast flow. The steps are as follows.
+\begin{enumerate}
+\item \emph{The jump is the time-$\ln K$ map of a flow.} Let
+  $\psi_\sigma x = xe^{-\sigma}$. It solves $\frac{\dd}{\dd\sigma}\psi_\sigma
+  x=-\psi_\sigma x$ with $\psi_0 x=x$, i.e.\ it is the flow of
+  \begin{equation}
+    \dot x = g(x) = -x,\qquad \Lambda_{\rm kick}=g'=-1,
+  \end{equation}
+  and $\psi_{\ln K}x = x/K = \psi(x)$. It has the group property
+  $\psi_{\sigma+h}=\psi_\sigma\circ\psi_h$.
+\item \emph{The jump term as an integral.} With $A=O\circ S_{kT,t}$, i.e.\ $O$ at
+  time $t$ along trajectories that start just after the $k$-th jump,
+  \begin{equation}
+    \E_0[A\circ\psi - A]
+    = \E_0[A\circ\psi_{\ln K}]-\E_0[A\circ\psi_0]
+    = \int_0^{\ln K}\dd\sigma\,\frac{\dd}{\dd\sigma}\E_0[A\circ\psi_\sigma].
+  \end{equation}
+\item \emph{Chain rule.} As in the autonomous case,
+  $A(\psi_{\sigma+h}x)=A\big(\psi_\sigma(\psi_hx)\big)$; differentiating with
+  respect to $h$ at $h=0$,
+  \begin{equation}
+    \frac{\dd}{\dd\sigma}A(\psi_\sigma x) = g(x)\,(A\circ\psi_\sigma)'(x).
+  \end{equation}
+  Explicitly, $(A\circ\psi_\sigma)'(x)=e^{-\sigma}A'(xe^{-\sigma})$, so
+  \[
+    g(x)\,(A\circ\psi_\sigma)'(x)=-xe^{-\sigma}A'(xe^{-\sigma})
+    =\frac{\dd}{\dd\sigma}A(xe^{-\sigma}).
+  \]
+\item \emph{Integration by parts.}
+  \begin{equation}
+    \frac{\dd}{\dd\sigma}\E_0[A\circ\psi_\sigma]
+    = \int_\M f_0\,g\,(A\circ\psi_\sigma)'\,\dd x
+    = \Big[f_0\,g\,(A\circ\psi_\sigma)\Big]_{-1}^{1}
+      - \int_\M (gf_0)'\,(A\circ\psi_\sigma)\,\dd x .
+  \end{equation}
+\item \emph{Kick dissipation function.} In analogy with~\eqref{eq:Omega},
+  define $f_0\,\Omega_{\rm kick}=-(gf_0)'$. Since $(gf_0)'=(-xf_0)'=-f_0-xf_0'$,
+  \begin{equation}
+    \Omega_{\rm kick}(x) = -\frac{(gf_0)'}{f_0} = 1+x\,\frac{f_0'(x)}{f_0(x)}
+    = -\Lambda_{\rm kick} - g\,\frac{f_0'}{f_0},
+  \end{equation}
+  which has exactly the form of $\Omega^{(0)}=-\Lambda-Gf_0'/f_0$. For
+  $f_0=\frac12$, $\Omega_{\rm kick}=1$: the kick contracts phase space at
+  unit rate.
+\item \emph{Boundary terms.} Unlike $G$, the kick field does not vanish at
+  the boundaries: $g(1)=-1$, $g(-1)=+1$. Hence
+  $\big[f_0\,g\,(A\circ\psi_\sigma)\big]_{-1}^{1}
+  =-f_0(1)A(\psi_\sigma 1)-f_0(-1)A(\psi_\sigma(-1))$, and
+  \begin{equation}\label{eq:kickderiv}
+    \frac{\dd}{\dd\sigma}\E_0[A\circ\psi_\sigma]
+    = \E_0\big[\Omega_{\rm kick}\,(A\circ\psi_\sigma)\big]
+    - f_0(1)A(e^{-\sigma}) - f_0(-1)A(-e^{-\sigma}) .
+  \end{equation}
+\end{enumerate}
+Altogether, the jump term of~\eqref{eq:ttcf} reads
 \begin{equation}
-  \frac{\dd}{\dd\sigma}\E_0[A\circ\psi_\sigma]
-  = \E_0\big[\Omega_{\rm kick}\,(A\circ\psi_\sigma)\big]
-  - f_0(1)A(\psi_\sigma 1) - f_0(-1)A(\psi_\sigma(-1)) .
+  \E_0[A\circ\psi - A]
+  = \int_0^{\ln K}\dd\sigma\,\Big\{
+    \E_0\big[\Omega_{\rm kick}\,(A\circ\psi_\sigma)\big]
+    - f_0(1)A(e^{-\sigma}) - f_0(-1)A(-e^{-\sigma})\Big\}.
 \end{equation}
+\emph{Check for $f_0=\frac12$.} Directly,
+$\E_0[A\circ\psi_\sigma]=\frac{e^{\sigma}}{2}\int_{-e^{-\sigma}}^{e^{-\sigma}}A(y)\,\dd y$,
+whose $\sigma$-derivative is
+$\E_0[A\circ\psi_\sigma]-\frac12\big[A(e^{-\sigma})+A(-e^{-\sigma})\big]$,
+in agreement with~\eqref{eq:kickderiv}. (Numerically, for $K=2$, $T=0.5$,
+$k=1$, $t=0.75$, $O(x)=x$, both sides of the last formula equal
+$-0.0602684895$.)
+
 The boundary terms vanish only if $f_0(\pm1)=0$, e.g.\ for
-$f_0=\frac34(1-x^2)$, but not for $f_0=\frac12$. The finite form used
+$f_0=\frac34(1-x^2)$, but not for $f_0=\frac12$. They are the flux of initial
+probability that the kick pushes inwards through $\pm1$. The finite form used
 in~\eqref{eq:ttcf} avoids this subtlety altogether.
 \end{remark}
 
@@ -477,7 +538,7 @@ with $G(\pm1)=0$; $D$ is a difference), which is what gives TTCF its
 favourable signal-to-noise ratio when the perturbation is weak (here: $K$
 close to $1$).
 
-\paragraph{Pseudo-code.}
+\noindent\textbf{Pseudo-code.}\par\smallskip
 \begin{lstlisting}
 x[i] ~ f0, i=1..N ;  W[i] = Omega0(x[i])
 for p in 1..P:                      # starting phases sigma_p in (0,T)
