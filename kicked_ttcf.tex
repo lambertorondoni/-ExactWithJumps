@@ -584,6 +584,41 @@ $\E_t[x]\to-1$, here $\E_{nT^+}[x]\to x^*$. The phase-space contraction per
 period at $x^*$ is $\ln S'(x^*)=\Lambda_{0,T}(x^*)-\ln K<0$: the flow
 contributes $\Lambda_{0,T}$, and each fire contributes $-\ln K$.
 
+\begin{remark}[Why the convergence is monotonic]
+The monotonicity of the orbits is a one-dimensional order-preservation
+property; it does not rely on $\dot x=x^2-1$ having a fixed sign, nor on
+contraction.
+\begin{enumerate}
+\item Every flow map of an autonomous ODE on an interval is increasing:
+  trajectories cannot cross, so $x<y$ implies $\Phi^tx<\Phi^ty$, whether
+  $\Phi^t$ contracts or expands. This also holds for $\dot x=x-x^3$
+  (Section~9.7.1.2 of the book), whose velocity changes sign.
+\item The jump $\psi(x)=x/K$ is increasing, since $K>0$.
+\item Hence $S=\psi\circ\Phi^T$ is increasing. If $x<x^*$, then
+  $S(x)<S(x^*)=x^*$: an orbit never crosses the fixed point. The sequence
+  $x_n=S^nx_0$ is monotone and bounded, so it converges to a fixed point.
+\item The fixed point is unique in $\M$, the fixed-point equation being
+  quadratic with one root in $\M$. Together with $S(-1)=-1/K>-1$ and
+  $S(1)=1/K<1$, this gives $S(x)>x$ for $x<x^*$ and $S(x)<x$ for $x>x^*$, so
+  every orbit converges to $x^*$. (This sign structure alone forces
+  $S'(x^*)\le1$.)
+\end{enumerate}
+Expansion or contraction decides how many fixed points there are and which
+of them attract, not whether orbits are monotone: if the flow expanded enough
+to give $S'(x^*)>1$, the orbits would still be monotone, but they would move
+away from $x^*$, towards another fixed point or the boundary. Monotonicity is
+lost if the jump reverses the order (e.g.\ $\psi(x)=-x/K$: orbits alternate
+around the fixed point or settle on a 2-cycle), if the jump map is not
+monotone (e.g.\ logistic-like: oscillations, period doubling, chaos), or in
+more than one dimension, where flows do not preserve an order.
+
+Finally, each orbit is monotone, but $\E_{nT^+}[x]$ need not be: orbits
+starting below $x^*$ increase and those above decrease, so their average can
+in principle oscillate. In this example it happens to decrease monotonically,
+$-0.1613,\,-0.2781,\,-0.3265,\,-0.3425$ at $t=0.5,1,1.5,2$, and so on
+towards $x^*$ (Table~\ref{tab:check}).
+\end{remark}
+
 \subsection{Numerical check}
 Table~\ref{tab:check} compares~\eqref{eq:exactmean} with the direct
 average~\eqref{eq:direct}, the TTCF formula~\eqref{eq:ttcf}, and the Kawasaki
